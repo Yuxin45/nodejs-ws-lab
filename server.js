@@ -28,17 +28,26 @@ function bundleClient() {
  * Setup a quick Web Socket server
  */
 function setupWSServer(server) {
+
   const wss = new WebSocketServer({
     server,
     autoAcceptConnections: false
   });
   let actorCoordinates = { x: 100, y: 100 };
+
   wss.on("connection", (ws) => {
     ws.on("message", (rawMsg) => {
       console.log(`RECV: ${rawMsg}`);
       const incommingMessage = JSON.parse(rawMsg);
-      actorCoordinates.x = incommingMessage.x;
-      actorCoordinates.y = incommingMessage.y;
+
+      actorCoordinates[incommingMessage.id] = {
+        x: incommingMessage.x,
+        y: incommingMessage.y,
+        frame: incommingMessage.frame
+      }
+
+      // actorCoordinates.x = incommingMessage.x;
+      // actorCoordinates.y = incommingMessage.y;
       wss.clients.forEach((wsClient) => {
         wsClient.send(JSON.stringify(actorCoordinates));
       })
